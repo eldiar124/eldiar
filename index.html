@@ -1,253 +1,119 @@
-<!--
-Simple HTML game: "Жулуп ал" (Catch the Star)
-Language: Kyrgyz + comments in English
-How to use: Open this file in a browser. Click falling stars to score points before the timer ends.
-You can change difficulty, duration, or styles in the script.
---><!doctype html>
-
-<html lang="ky">
+<!doctype html>
+<html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Жулуп ал — Catch the Star</title>
-  <style>
-    :root{
-      --bg:#0f172a; --card:#0b1220; --accent:#f59e0b; --muted:#94a3b8;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter, system-ui, Arial;background:linear-gradient(180deg,var(--bg),#071024);color:#e6eef8;display:flex;align-items:center;justify-content:center;height:100vh}
-    .game-wrap{width:920px;max-width:95%;background:linear-gradient(180deg,rgba(255,255,255,0.03),transparent);border-radius:12px;padding:18px;box-shadow:0 10px 30px rgba(2,6,23,0.7)}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .title{font-size:20px;font-weight:700}
-    .info{display:flex;gap:12px;align-items:center}
-    .info div{background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:8px;color:var(--muted);font-weight:600}
-    #playBtn{background:var(--accent);border:none;padding:8px 14px;border-radius:8px;color:#071024;font-weight:700;cursor:pointer}
-    #playBtn[disabled]{opacity:0.5;cursor:not-allowed}.board{position:relative;height:520px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));}
-.star{position:absolute;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;user-select:none;transform:translate(-50%,-50%);transition:transform 0.12s linear;}
-.star:active{transform:translate(-50%,-50%) scale(0.85)}
-.score-fx{position:absolute;pointer-events:none;font-weight:800;font-size:18px}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Анимация — GitHub Pages</title>
+<style>
+  :root{
+    --bg: #0f1724;
+    --accent: #39b3a6;
+    --muted: #9aa4b2;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#eef;}
+  .wrap{
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:40px;
+    flex-direction:column;
+    padding:40px;
+    box-sizing:border-box;
+  }
 
-footer{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px}
-.settings{display:flex;gap:8px;align-items:center}
-label{font-size:13px;color:var(--muted)}
-select,input[type=range]{background:transparent;color:inherit}
+  /* Карточка с анимацией логотипа */
+  .card{
+    width:320px;
+    height:320px;
+    border-radius:24px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
 
-/* small screen tweaks */
-@media (max-width:560px){.info{display:none}.board{height:400px}}
+  /* Элемент — «логотип» из трёх кругов */
+  .logo{
+    position:relative;
+    width:160px;
+    height:160px;
+  }
+  .dot{
+    position:absolute;
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:var(--accent);
+    transform-origin:center;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,0.5));
+    animation: float 3s ease-in-out infinite;
+  }
+  .dot:nth-child(1){ left:0; top:50%; transform:translateY(-50%); animation-delay:0s; background:linear-gradient(135deg,#39b3a6,#2ea39b);}
+  .dot:nth-child(2){ left:50%; top:0; transform:translateX(-50%); animation-delay:.2s; background:linear-gradient(135deg,#6f87ff,#5f76f0);}
+  .dot:nth-child(3){ right:0; top:50%; transform:translateY(-50%); animation-delay:.4s; background:linear-gradient(135deg,#ff7a6b,#ff6a5a);}
 
-  </style>
+  /* вращающиеся кольца */
+  .ring{
+    position:absolute;
+    width:240px;
+    height:240px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.03);
+    left:50%; top:50%; transform:translate(-50%,-50%);
+    animation: spin 10s linear infinite;
+    pointer-events:none;
+  }
+  .ring.r2{ width:280px; height:280px; border-style:dashed; animation-duration:14s; opacity:.6;}
+  .ring.r3{ width:200px; height:200px; border-style:solid; animation-duration:7s; opacity:.35;}
+
+  @keyframes float{
+    0%   { transform: translateY(-6px) scale(1); }
+    50%  { transform: translateY(6px)  scale(1.05); }
+    100% { transform: translateY(-6px) scale(1); }
+  }
+  @keyframes spin{
+    from{ transform: translate(-50%,-50%) rotate(0deg); }
+    to  { transform: translate(-50%,-50%) rotate(360deg); }
+  }
+
+  /* подпись */
+  .caption{
+    color:var(--muted);
+    font-size:14px;
+    text-align:center;
+    max-width:420px;
+  }
+
+  /* адаптив */
+  @media (max-width:420px){
+    .card{ width:260px; height:260px; }
+    .logo{ width:120px; height:120px; }
+    .dot{ width:44px; height:44px; }
+  }
+</style>
 </head>
 <body>
-  <div class="game-wrap">
-    <header>
-      <div class="title">Жулуп ал — Catch the Star</div>
-      <div class="info">
-        <div>Убакыт: <span id="time">00:30</span></div>
-        <div>Балл: <span id="score">0</span></div>
-        <button id="playBtn">Ойноо</button>
+  <div class="wrap">
+    <div class="card" role="img" aria-label="Анимированное лого">
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="ring r3"></div>
+
+      <div class="logo" aria-hidden="true">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
       </div>
-    </header><main>
-  <div class="board" id="board" aria-live="polite" title="Click or tap the stars to score points"></div>
-</main>
+    </div>
 
-<footer>
-  <div class="settings">
-    <label>Кыйынчылык
-      <select id="difficulty">
-        <option value="easy">Жөнгө салынган</option>
-        <option value="normal" selected>Орто</option>
-        <option value="hard">Кыйратуучу</option>
-      </select>
-    </label>
-    <label>Убакыт: <input id="duration" type="range" min="10" max="120" value="30"></label>
-    <span id="durationLabel">30s</span>
+    <div class="caption">
+      Простая CSS-анимация — можно менять цвета, размер и скорость. <br>
+      Чтобы опубликовать: положи этот файл как <code>index.html</code> в репозиторий и включи GitHub Pages.
+    </div>
   </div>
-  <div style="color:var(--muted)">Керек болсо: ачуу/жабуу үн — табитка жараша</div>
-</footer>
-
-  </div>  <script>
-    const board = document.getElementById('board');
-    const playBtn = document.getElementById('playBtn');
-    const timeEl = document.getElementById('time');
-    const scoreEl = document.getElementById('score');
-    const difficultySelect = document.getElementById('difficulty');
-    const durationRange = document.getElementById('duration');
-    const durationLabel = document.getElementById('durationLabel');
-
-    let score = 0;
-    let remaining = Number(durationRange.value);
-    let timerId = null;
-    let spawnInterval = 900;
-    let maxStars = 4;
-    let running = false;
-
-    function formatTime(sec){
-      const s = Math.max(0, Math.floor(sec));
-      return (s<10? '00:0'+s : s<60? '00:'+s : Math.floor(s/60).toString().padStart(2,'0')+':'+(s%60).toString().padStart(2,'0'));
-    }
-
-    function setDifficulty(level){
-      if(level==='easy'){spawnInterval=1100; maxStars=3}
-      else if(level==='normal'){spawnInterval=800; maxStars=4}
-      else {spawnInterval=550; maxStars=6}
-    }
-
-    durationRange.addEventListener('input',()=>{
-      durationLabel.textContent = durationRange.value + 's';
-      remaining = Number(durationRange.value);
-      timeEl.textContent = formatTime(remaining);
-    });
-
-    difficultySelect.addEventListener('change',()=> setDifficulty(difficultySelect.value));
-
-    function rand(min,max){return Math.random()*(max-min)+min}
-
-    function spawnStar(){
-      if(!running) return;
-      // limit number of stars
-      const existing = board.querySelectorAll('.star').length;
-      if(existing >= maxStars) return;
-
-      const star = document.createElement('div');
-      star.className='star';
-      // random size
-      const size = Math.round(rand(34,64));
-      star.style.width = star.style.height = size+'px';
-
-      // look: make a simple star with emoji and shadow
-      star.innerHTML = '★';
-      star.style.left = rand(8,92)+'%';
-      star.style.top = '-10%';
-      star.style.fontSize = Math.round(size*0.6)+'px';
-      star.style.background = 'radial-gradient(circle at 35% 25%, rgba(255,255,255,0.18), rgba(255,255,255,0.04))';
-      star.style.boxShadow = '0 6px 18px rgba(0,0,0,0.6), 0 0 20px rgba(245,158,11,0.12)';
-      star.style.color = 'var(--accent)';
-
-      // falling speed
-      const duration = rand(4.2, 7.5) * (spawnInterval<700?0.9:1);
-      board.appendChild(star);
-
-      // animate by gradually increasing top using CSS transitions
-      requestAnimationFrame(()=>{
-        star.style.transition = `top ${duration}s linear, transform 0.15s`;
-        star.style.top = rand(75,92) + '%';
-      });
-
-      // remove star when it reaches bottom
-      const removeTimeout = setTimeout(()=>{
-        if(board.contains(star)) board.removeChild(star);
-      }, duration*1000 + 500);
-
-      // click handler
-      star.addEventListener('click', (e)=>{
-        e.stopPropagation();
-        if(!running) return;
-        score += Math.round(10 + size/6);
-        scoreEl.textContent = score;
-        // small score fx
-        const fx = document.createElement('div');
-        fx.className='score-fx';
-        fx.style.left = e.clientX - board.getBoundingClientRect().left + 'px';
-        fx.style.top = e.clientY - board.getBoundingClientRect().top + 'px';
-        fx.textContent = '+' + Math.round(10 + size/6);
-        board.appendChild(fx);
-        setTimeout(()=>fx.style.transform='translateY(-28px) scale(1.05)',50);
-        setTimeout(()=>fx.remove(),700);
-
-        // pop animation and remove
-        star.style.transform='translate(-50%,-50%) scale(0.8) rotate(15deg)';
-        star.style.opacity='0';
-        clearTimeout(removeTimeout);
-        setTimeout(()=>{if(board.contains(star)) board.removeChild(star)},250);
-      });
-    }
-
-    function startGame(){
-      if(running) return;
-      running=true;
-      score=0; scoreEl.textContent=score;
-      remaining = Number(durationRange.value);
-      timeEl.textContent = formatTime(remaining);
-      setDifficulty(difficultySelect.value);
-      playBtn.textContent='To'ктотуу';
-      playBtn.setAttribute('aria-pressed','true');
-
-      // spawn loop
-      timerId = setInterval(()=>{
-        remaining -= 1;
-        timeEl.textContent = formatTime(remaining);
-        // spawn multiple stars depending on difficulty
-        if(Math.random() < 0.85) spawnStar();
-        if(Math.random() < 0.35) spawnStar();
-        // occasionally spawn a 'golden' star worth more
-        if(Math.random() < 0.06){
-          spawnGolden();
-        }
-        if(remaining <= 0){ endGame(); }
-      }, 1000);
-
-      // also spawn additional stars at fractional intervals
-      spawnTicker = setInterval(()=>{ if(Math.random()<0.9) spawnStar(); }, Math.max(200, spawnInterval/2));
-    }
-
-    function endGame(){
-      running=false;
-      playBtn.textContent='Ойноо';
-      playBtn.removeAttribute('aria-pressed');
-      clearInterval(timerId); clearInterval(spawnTicker);
-      // clear board
-      setTimeout(()=>{
-        alert('Оюн бүткөн! Сиздин упай: ' + score + '\nРекорд түзүү үчүн кайра ойноп көрүңүз.');
-        board.querySelectorAll('.star, .score-fx').forEach(el=>el.remove());
-      }, 250);
-    }
-
-    function spawnGolden(){
-      if(!running) return;
-      const gold = document.createElement('div');
-      gold.className='star';
-      const size = Math.round(rand(48,78));
-      gold.style.width = gold.style.height = size+'px';
-      gold.innerHTML = '✦';
-      gold.style.left = rand(12,88)+'%';
-      gold.style.top = '-6%';
-      gold.style.fontSize = Math.round(size*0.6)+'px';
-      gold.style.color = '#ffd166';
-      gold.style.background = 'radial-gradient(circle at 40% 30%, rgba(255,255,204,0.18), rgba(255,255,204,0.03))';
-      gold.style.boxShadow = '0 10px 30px rgba(255,209,102,0.15)';
-      const duration = rand(3.4,5.6);
-      board.appendChild(gold);
-      requestAnimationFrame(()=>{ gold.style.transition = `top ${duration}s linear, transform 0.12s`; gold.style.top = rand(72,92)+'%'; });
-
-      const removeTimeout = setTimeout(()=>{ if(board.contains(gold)) board.removeChild(gold); }, duration*1000 + 500);
-      gold.addEventListener('click',(e)=>{
-        if(!running) return;
-        score += 100;
-        scoreEl.textContent = score;
-        const fx = document.createElement('div'); fx.className='score-fx'; fx.style.left = e.clientX - board.getBoundingClientRect().left + 'px'; fx.style.top = e.clientY - board.getBoundingClientRect().top + 'px'; fx.textContent = '+100'; board.appendChild(fx);
-        setTimeout(()=>fx.style.transform='translateY(-36px) scale(1.05)',50); setTimeout(()=>fx.remove(),900);
-        gold.style.transform='translate(-50%,-50%) scale(0.8) rotate(-20deg)'; gold.style.opacity='0'; clearTimeout(removeTimeout); setTimeout(()=>{ if(board.contains(gold)) board.removeChild(gold) },300);
-      });
-    }
-
-    // play/pause button toggle
-    playBtn.addEventListener('click', ()=>{
-      if(!running) startGame(); else endGame();
-    });
-
-    // click on board to create small reward occasionally
-    board.addEventListener('click', (e)=>{
-      // small chance to create bonus
-      if(!running) return;
-      if(Math.random() < 0.08) {
-        const bonus = document.createElement('div'); bonus.className='star'; bonus.innerHTML='+'; bonus.style.width=bonus.style.height='40px'; bonus.style.left = (e.offsetX) + 'px'; bonus.style.top = (e.offsetY) + 'px'; bonus.style.fontSize='20px'; bonus.style.background='rgba(255,255,255,0.04)'; board.appendChild(bonus);
-        setTimeout(()=>{ if(board.contains(bonus)) bonus.remove() },600);
-      }
-    });
-
-    // init UI
-    timeEl.textContent = formatTime(remaining);
-    scoreEl.textContent = score;
-    setDifficulty(difficultySelect.value);
-  </script></body>
-</html>
+</body>
+</html>    
