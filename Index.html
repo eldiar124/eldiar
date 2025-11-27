@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Анимация неон шара</title>
+
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #0b0f1a;
+        overflow: hidden;
+    }
+
+    .ball {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #00eaff, #0066ff);
+        box-shadow: 0 0 35px #00eaff;
+        animation: move 3.5s infinite ease-in-out alternate,
+                   glow 1.5s infinite ease-in-out;
+    }
+
+    @keyframes move {
+        0%   { transform: translate(-120px, 0); }
+        50%  { transform: translate(120px, -80px); }
+        100% { transform: translate(-120px, -150px); }
+    }
+
+    @keyframes glow {
+        0%   { box-shadow: 0 0 15px #00eaff; }
+        100% { box-shadow: 0 0 45px #00eaff; }
+    }
+</style>
+</head>
+
+<body>
+    <div class="ball"></div>
+</body>
+</html>  
